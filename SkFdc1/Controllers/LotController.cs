@@ -7,6 +7,8 @@ namespace SkFdc1.Controllers
 {
 	internal class LotController
 	{
+		// 버전 1.1
+
 		private readonly LotService _service;
 
 		public LotController()
