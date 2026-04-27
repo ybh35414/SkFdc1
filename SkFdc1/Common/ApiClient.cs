@@ -8,6 +8,7 @@ namespace SkFdc1.Common
 	public class ApiClient
 	{
 		// 버전 1.1
+		// 버전 1.2
 		private readonly HttpClient _client;
 
 		public ApiClient()
