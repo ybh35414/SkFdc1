@@ -1,6 +1,8 @@
 ﻿using SkFdc1.Controllers;
 using SkFdc1.Models;
 using System.Threading.Tasks;
+using ScottPlot;
+using ScottPlot.WinForms;
 
 namespace SkFdc1
 {
