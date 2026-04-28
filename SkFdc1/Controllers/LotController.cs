@@ -27,5 +27,11 @@ namespace SkFdc1.Controllers
 			LotDetailDto dtl = await _service.GetLotDetail(lotId);
 			return dtl;	
 		}
+
+		public async Task<List<SensorDto>> GetSensorViewList()
+		{ 
+			List<SensorDto> sensors = await _service.GetSensorsAsync();
+			return sensors;
+		}
 	}
 }
