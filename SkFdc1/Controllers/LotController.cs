@@ -33,5 +33,17 @@ namespace SkFdc1.Controllers
 			List<SensorDto> sensors = await _service.GetSensorsAsync();
 			return sensors;
 		}
+
+		public async Task<List<SensorDataDto>> GetSensorData(string lotId, string sensorId, int lastDataId)
+		{
+			List<SensorDataDto> sensorData = await _service.GetSensorData(lotId, sensorId, lastDataId);
+			return sensorData;
+		}
+
+		public async Task<List<SensorTypeIdDto>> GetSensorTypeIds(string lotId)
+		{
+			List<SensorTypeIdDto> sensorData = await _service.GetSensorTypeIds(lotId);
+			return sensorData;
+		}
 	}
 }

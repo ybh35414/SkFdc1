@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -20,11 +21,20 @@ namespace SkFdc1.Common
 		// Get
 		public async Task<T> GetAsync<T>(string url)
 		{
-			HttpResponseMessage response = await _client.GetAsync(url);
-			response.EnsureSuccessStatusCode();
+			try
+			{
+				HttpResponseMessage response = await _client.GetAsync(url);
+				response.EnsureSuccessStatusCode();
 
-			string json = await response.Content.ReadAsStringAsync();
-			return JsonConvert.DeserializeObject<T>(json);
+				string json = await response.Content.ReadAsStringAsync();
+				return JsonConvert.DeserializeObject<T>(json);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex);
+				return JsonConvert.DeserializeObject<T>("");
+			}
+
 		}
 
 		// Post
