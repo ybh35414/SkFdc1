@@ -4,7 +4,7 @@ using SkFdc1.Repositories.Interfaces;
 
 namespace SkFdc1.Repositories.Implementations
 {
-	internal class LotRepository : ILotRepository
+	public class LotRepository : ILotRepository
 	{
 		private readonly ApiClient _apiClient; // 공통 API 클라이언트 가정
 

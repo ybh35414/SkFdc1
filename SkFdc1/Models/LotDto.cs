@@ -85,9 +85,12 @@ namespace SkFdc1.Models
 		public string sensorId { get; set; } = string.Empty;
 		public string sensorType { get; set; } = string.Empty;
 
-		public static readonly SensorDataDto Empty = new SensorDataDto
+		public static readonly SensorTypeIdDto Empty = new SensorTypeIdDto
 		{
-			eqpId = "",
+			areaName = "",
+			eqpName = "",
+			sensorId = "",
+			sensorType = "",
 		};
 
 	}

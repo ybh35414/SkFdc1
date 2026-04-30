@@ -12,8 +12,6 @@ namespace SkFdc1.Services.Implementations
 {
 	internal class LotService : ILotService
 	{
-		public LotRepository LotRepo { get; }
-
 		private readonly ILotRepository _lotRepository;
 
 		public LotService(ILotRepository lotRepository)
