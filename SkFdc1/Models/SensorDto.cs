@@ -23,7 +23,7 @@ namespace SkFdc1.Models
             Unit = "-"
         };
 
-        //빈 객체인지 확인하는 속성
-        public bool IsEmpty => string.IsNullOrEmpty(SensorID);
+		//빈 객체인지 확인하는 속성
+		public bool IsEmpty => string.IsNullOrEmpty(SensorID);
     }
 }

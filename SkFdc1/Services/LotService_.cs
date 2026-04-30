@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace SkFdc1.Services
 {
-	public class LotService
+	public class LotService_
 	{
 		private readonly ApiClient _apiClient;
 
-		public LotService()
+		public LotService_()
 		{
 			_apiClient = new ApiClient();
 		}

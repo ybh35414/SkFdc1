@@ -24,16 +24,19 @@ namespace SkFdc1
 
             // 2. 레포지토리 생성     
             var sensorRepo = new SensorRepository(apiClient);
+            var LotRepo = new LotRepository(apiClient);
 
             // 3. 서비스 생성
-            var lotService = new LotService();
+            var lotService = new LotService(LotRepo);
             var sensorService = new SensorService(sensorRepo);
 
             // 4. 컨트롤러 생성
-            var lotController = new LotController();
+            var lotController = new LotController(lotService);
             var sensorController = new SensorController(sensorService);
 
-            Application.Run(new frmJang(sensorController, lotController));
-        }
-    }
+			//Application.Run(new frmJang(sensorController, lotController));
+			Application.Run(new MainForm(lotController));
+
+		}
+	}
 }

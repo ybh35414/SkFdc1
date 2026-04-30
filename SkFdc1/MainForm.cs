@@ -32,10 +32,11 @@ namespace SkFdc1
 		private string _curLotId;
 
 
-		public MainForm()
+		public MainForm(LotController lotController)
 		{
 			InitializeComponent();
-			_controller = new LotController();
+
+			_controller = lotController;
 		}
 
 		#region 이벤트
