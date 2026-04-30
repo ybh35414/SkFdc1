@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SkFdc1.Controllers
 {
-	internal class LotController
+	public class LotController
 	{
 		// 버전 1.1
 
@@ -26,12 +26,6 @@ namespace SkFdc1.Controllers
 		{
 			LotDetailDto dtl = await _service.GetLotDetail(lotId);
 			return dtl;	
-		}
-
-		public async Task<List<SensorDto>> GetSensorViewList()
-		{ 
-			List<SensorDto> sensors = await _service.GetSensorsAsync();
-			return sensors;
 		}
 	}
 }
