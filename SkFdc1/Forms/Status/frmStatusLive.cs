@@ -4,14 +4,15 @@ using SkFdc1.Controllers;
 using SkFdc1.Models;
 using SkFdc1.Services.Business.Lot;
 
-namespace SkFdc1
+namespace SkFdc1.Forms.Status
 {
-	public partial class MainForm : Form
+	public partial class frmStatusLive : Form
 	{
 		private readonly LotController _controller;
-		private readonly SensorChartService _chartService;	
+		private readonly SensorChartService _chartService;
 
-		public MainForm(LotController lotController)
+
+		public frmStatusLive(LotController lotController)
 		{
 			InitializeComponent();
 
@@ -25,8 +26,8 @@ namespace SkFdc1
 			_chartService.SetChartObject(new List<FormsPlot>() { formsPlot1, formsPlot2, formsPlot3 });
 		}
 
-		#region 이벤트
-		private async void MainForm_Load(object sender, EventArgs e)
+		#region event
+		private async void frmStatusLive_Load(object sender, EventArgs e)
 		{
 			// Lot 리스트 조회
 			await LoadLotList();
@@ -47,12 +48,12 @@ namespace SkFdc1
 
 			// 실시간 차트 시작 처리
 			_chartService.StartChartGraph(lotId);
-		}
-
+		} 
 		#endregion
 
+
 		#region 내부함수
-		
+
 		// 에러 이벤트 → 메시지 표시
 		private void OnSensorError(object? sender, string message)
 		{
@@ -68,6 +69,5 @@ namespace SkFdc1
 		}
 
 		#endregion
-
 	}
 }

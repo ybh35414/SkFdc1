@@ -216,8 +216,9 @@ namespace SkFdc1.Services.Business.Lot
 					$"Equipment Status: {lotDetail.equipmentStatus}\r\n" +
 					$"Area Name: {lotDetail.areaName}";
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
+				OnError?.Invoke(this, "상세정보 처리 오류 : lotID: lotId / " + ex.Message);
 				retString = "";
 			}
 

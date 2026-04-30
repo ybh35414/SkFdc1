@@ -41,7 +41,7 @@ namespace SkFdc1
 				var sensorController = new SensorController(sensorService);
 
 				//Application.Run(new frmJang(sensorController, lotController));
-				Application.Run(new MainForm(lotController));
+				Application.Run(new frmFdcMain(lotController));
 			}
             catch (Exception ex)
             {
