@@ -34,14 +34,16 @@ namespace SkFdc1.Common
                 response.EnsureSuccessStatusCode();
 
                 string json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(json);
+				return JsonConvert.DeserializeObject<T>(json);
             }
 			catch (HttpRequestException ex)
-			{				
+			{
+				LogHelper.Error($"[GET] API 통신 오류 : {url}", ex);
 				throw new Exception($"[Get] API 통신 오류 : {url}\n{ex.Message}", ex);
 			}
 			catch (TaskCanceledException)
 			{
+				LogHelper.Warn($"[GET] 요청 시간 초과 : {url}");
 				throw new Exception($"[GET] 요청시간 초과 : {url}");
 			}			
 		}

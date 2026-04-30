@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace SkFdc1.Services.Business.Lot
 {
+	/// <summary>
+	/// 센서 그래프 처리 비지니스 로직
+	/// </summary>
 	public class SensorChartService
 	{
 		private readonly LotController _controller;
@@ -36,13 +39,24 @@ namespace SkFdc1.Services.Business.Lot
 			_controller = controller;
 		}
 
-		public void SetChartObject(List<FormsPlot> formsPlot)
+		public void SetChartObject(List<FormsPlot> formsPlot) => _formsPlot = formsPlot;
+
+		// 차트 처리 시작
+		public async void StartChartGraph(string lotId)
 		{
-			_formsPlot = formsPlot;
+			// 기존 타이머 정지
+			StopTimer();
+
+			// 센서 타입 조회 후 차트 초기화
+			List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotId);
+			InitAllCharts(sensorTypes);
+
+			// 타이머 시작
+			StartTimer(lotId);
 		}
 
 		// 타이머 시작
-		public void StartTimer(string lotId, int interval = 1000)
+		private void StartTimer(string lotId, int interval = 1000)
 		{
 			StopTimer(); // 기존 타이머 정리
 
@@ -51,7 +65,8 @@ namespace SkFdc1.Services.Business.Lot
 			_timer.Start();
 		}
 
-		public void StopTimer()
+		// 타이머 중지
+		private void StopTimer()
 		{
 			_timer?.Stop();
 			_timer?.Dispose();
@@ -59,32 +74,40 @@ namespace SkFdc1.Services.Business.Lot
 		}
 
 		// 센서 데이터 조회 및 타입별 분류
-		public async Task FetchSensorData(string lotId)
+		private async Task FetchSensorData(string lotId)
 		{
 			TempValue = new Dictionary<string, List<double>>();
 			PressValue = new Dictionary<string, List<double>>();
 			FlowValue = new Dictionary<string, List<double>>();
 
-			List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotId);
-
-			foreach (SensorTypeIdDto sensorTp in sensorTypes)
+			try
 			{
-				List<SensorDataDto> sensorData =
-					await _controller.GetSensorData(lotId, sensorTp.sensorId, 0);
+				List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotId);
 
-				if (sensorData.Count == 0) continue;
-
-				List<double> values = sensorData.Select(sd => sd.sensorValue).ToList();
-
-				switch (sensorTp.sensorType.ToUpper())
+				foreach (SensorTypeIdDto sensorTp in sensorTypes)
 				{
-					case "TEMP": TempValue.Add(sensorTp.sensorId, values); break;
-					case "PRESSURE": PressValue.Add(sensorTp.sensorId, values); break;
-					case "FLOW": FlowValue.Add(sensorTp.sensorId, values); break;
+					List<SensorDataDto> sensorData =
+						await _controller.GetSensorData(lotId, sensorTp.sensorId, 0);
+
+					if (sensorData.Count == 0) continue;
+
+					List<double> values = sensorData.Select(sd => sd.sensorValue).ToList();
+
+					switch (sensorTp.sensorType.ToUpper())
+					{
+						case "TEMP": TempValue.Add(sensorTp.sensorId, values); break;
+						case "PRESSURE": PressValue.Add(sensorTp.sensorId, values); break;
+						case "FLOW": FlowValue.Add(sensorTp.sensorId, values); break;
+					}
 				}
+			}
+			catch (Exception ex)
+			{
+				OnError?.Invoke(this, "차트 데이터 얻기 오류 : lotID: lotId / " + ex.Message);
 			}
 		}
 
+		// 실제 차트 업데이트 처리
 		private async Task TimerTick(string lotId)
 		{
 			_timer?.Stop();
@@ -99,7 +122,7 @@ namespace SkFdc1.Services.Business.Lot
 			}
 			catch (Exception ex)
 			{
-				OnError?.Invoke(this, ex.Message);
+				OnError?.Invoke(this, "차트 업데이트 오류 : lotID: lotId / " + ex.Message);
 			}
 			finally
 			{
@@ -107,6 +130,7 @@ namespace SkFdc1.Services.Business.Lot
 			}
 		}
 
+		// 전체 차트 초기화 및 스트림데이터 세팅
 		public void InitAllCharts(List<SensorTypeIdDto> sensorTypes)
 		{
 			_tempStreamData = new List<(string, DataStreamer)>();
@@ -129,6 +153,7 @@ namespace SkFdc1.Services.Business.Lot
 				_flowStreamData);
 		}
 
+		// 차트 초기화 처리
 		private void InitChart(FormsPlot chart, string title,
 			List<string> sensorIds, List<(string, DataStreamer)> streamData)
 		{
@@ -168,6 +193,36 @@ namespace SkFdc1.Services.Business.Lot
 			}
 
 			chart.Refresh();
+		}
+
+		// LOT 상세정보 조회
+		public async Task<string> GetDetailInfo(string lotId)
+		{
+			string retString = "";
+
+			try
+			{
+				LotDetailDto lotDetail = await _controller.GetLotDetail(lotId);
+
+				retString = $"Lot ID: {lotDetail.lotId}\r\n" +
+					$"Status: {lotDetail.status}\r\n" +
+					$"Start Time: {lotDetail.startTime}\r\n" +
+					$"End Time: {lotDetail.endTime}\r\n" +
+					$"Priority: {lotDetail.priority}\r\n" +
+					$"Product Name: {lotDetail.productName}\r\n" +
+					$"Product Type: {lotDetail.productType}\r\n" +
+					$"Process Name: {lotDetail.processName}\r\n" +
+					$"Equipment Name: {lotDetail.equipmentName}\r\n" +
+					$"Equipment Status: {lotDetail.equipmentStatus}\r\n" +
+					$"Area Name: {lotDetail.areaName}";
+			}
+			catch (Exception)
+			{
+				retString = "";
+			}
+
+			return retString;
+			
 		}
 
 	}

@@ -4,6 +4,7 @@ using ScottPlot.DataSources;
 using ScottPlot.Plottables;
 using ScottPlot.Statistics;
 using ScottPlot.WinForms;
+using SkFdc1.Common;
 using SkFdc1.Controllers;
 using SkFdc1.Helpers;
 using SkFdc1.Models;
@@ -48,27 +49,22 @@ namespace SkFdc1
 			string? lotId = row.Cells["lotId"].Value.ToString();
 			if (string.IsNullOrEmpty(lotId)) return;
 
-			// 기존 타이머 정지
-			_chartService.StopTimer();
-
 			// LOT 상세정보 조회
-			await ViewDetailInfo(lotId);
+			string dtlStr = await _chartService.GetDetailInfo(lotId);
+			txtDtl.Text = dtlStr;
 
-			// 센서 타입 조회 후 차트 초기화
-			List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotId);
-			_chartService.InitAllCharts(sensorTypes);
-
-			// 타이머 시작
-			_chartService.StartTimer(lotId);
+			// 실시간 차트 시작 처리
+			_chartService.StartChartGraph(lotId);
 		}
 
 		#endregion
 
 		#region 내부함수
-
+		
 		// 에러 이벤트 → 메시지 표시
 		private void OnSensorError(object? sender, string message)
 		{
+			LogHelper.Error(message);
 			MessageHelper.ShowError(message);
 		}
 
@@ -77,24 +73,6 @@ namespace SkFdc1
 		{
 			List<LotViewDto> lots = await _controller.GetLotViewList();
 			grdList.DataSource = lots;
-		}
-
-		// LOT 상세정보 조회
-		private async Task ViewDetailInfo(string lotId)
-		{
-			LotDetailDto lotDetail = await _controller.GetLotDetail(lotId);
-
-			txtDtl.Text = $"Lot ID: {lotDetail.lotId}\r\n" +
-				$"Status: {lotDetail.status}\r\n" +
-				$"Start Time: {lotDetail.startTime}\r\n" +
-				$"End Time: {lotDetail.endTime}\r\n" +
-				$"Priority: {lotDetail.priority}\r\n" +
-				$"Product Name: {lotDetail.productName}\r\n" +
-				$"Product Type: {lotDetail.productType}\r\n" +
-				$"Process Name: {lotDetail.processName}\r\n" +
-				$"Equipment Name: {lotDetail.equipmentName}\r\n" +
-				$"Equipment Status: {lotDetail.equipmentStatus}\r\n" +
-				$"Area Name: {lotDetail.areaName}";
 		}
 
 		#endregion
