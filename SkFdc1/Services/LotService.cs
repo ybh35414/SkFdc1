@@ -100,4 +100,21 @@ namespace SkFdc1.Services
 
   //      }
     }
+		public async Task<List<SensorDto>> GetSensorsAsync()
+		{
+			return await _apiClient.GetAsync<List<SensorDto>>("Sensors");
+		}
+
+
+		public async Task<List<SensorDataDto>> GetSensorData(string lotId, string sensorId, int lastDataId)
+		{
+			return await _apiClient.GetAsync<List<SensorDataDto>>($"lot/graph/values/{lotId}/{sensorId}/{lastDataId}");
+		}
+
+		public async Task<List<SensorTypeIdDto>> GetSensorTypeIds(string lotId)
+		{
+			return await _apiClient.GetAsync<List<SensorTypeIdDto>>($"lot/graph/sensor/{lotId}");
+		}
+
+	}
 }
