@@ -6,7 +6,6 @@ using ScottPlot.Statistics;
 using ScottPlot.WinForms;
 using SkFdc1.Common;
 using SkFdc1.Controllers;
-using SkFdc1.Helpers;
 using SkFdc1.Models;
 using SkFdc1.Services.Business.Lot;
 using System;

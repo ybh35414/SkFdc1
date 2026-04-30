@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SkFdc1.Helpers
+namespace SkFdc1.Common
 {
 	public static class MessageHelper
 	{
