@@ -99,7 +99,7 @@ namespace SkFdc1.Services
   //          }
 
   //      }
-    }
+    //}
 		public async Task<List<SensorDto>> GetSensorsAsync()
 		{
 			return await _apiClient.GetAsync<List<SensorDto>>("Sensors");
