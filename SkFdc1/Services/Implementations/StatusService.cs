@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 
 namespace SkFdc1.Services.Implementations
 {
-	internal class LotService : ILotService
+	internal class StatusService : IStatusService
 	{
-		private readonly ILotRepository _lotRepository;
+		private readonly IStatusRepository _lotRepository;
 
-		public LotService(ILotRepository lotRepository)
+		public StatusService(IStatusRepository lotRepository)
 		{
 			_lotRepository = lotRepository;
 		}
 
-		public async Task<LotDetailDto> GetProcessLotDetail(string lotId)
+		public async Task<LotDetailDto> GetProcessLotDetail(int lotKey)
 		{
 			//var data = await _sensorRepository.GetSensorsAsync();
 			// 실무 로직 예: 데이터가 없으면 기본값 처리하거나 특정 상태 가공
@@ -28,7 +28,7 @@ namespace SkFdc1.Services.Implementations
 			//    data.Status = "대기중";
 			//}
 
-			LotDetailDto data = await _lotRepository.GetLotDetail(lotId);
+			LotDetailDto data = await _lotRepository.GetLotDetail(lotKey);
 
 			return data;
 		}
@@ -39,15 +39,15 @@ namespace SkFdc1.Services.Implementations
 			return data;
 		}
 
-		public async Task<List<SensorDataDto>> GetProcessSensorData(string lotId, string sensorId, int lastDataId)
+		public async Task<List<SensorDataDto>> GetProcessSensorData(int lotKey, int sensorKey)
 		{
-			List<SensorDataDto> data = await _lotRepository.GetSensorData(lotId, sensorId, lastDataId);
+			List<SensorDataDto> data = await _lotRepository.GetSensorData(lotKey, sensorKey);
 			return data;
 		}
 
-		public async Task<List<SensorTypeIdDto>> GetProcessSensorTypeIds(string lotId)
+		public async Task<List<SensorTypeIdDto>> GetProcessSensorTypeIds(int lotKey)
 		{
-			var data = await _lotRepository.GetSensorTypeIds(lotId);
+			var data = await _lotRepository.GetSensorTypeIds(lotKey);
 			return data;
 		}
 	}

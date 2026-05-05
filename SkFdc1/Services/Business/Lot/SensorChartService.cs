@@ -15,8 +15,18 @@ namespace SkFdc1.Services.Business.Lot
 	/// </summary>
 	public class SensorChartService
 	{
-		private readonly LotController _controller;
+		private readonly StatusController _controller;
 		private System.Windows.Forms.Timer? _timer;
+
+		public int MyProperty { get; set; }
+
+		//private int _myVar;
+		//public int MyProperty
+		//{
+		//	get { return _myVar; }
+		//	set { _myVar = value; }
+		//}
+
 
 		// 타입별 센서 데이터 - Service가 보관
 		public Dictionary<string, List<double>> TempValue { get; private set; } = new();
@@ -34,34 +44,38 @@ namespace SkFdc1.Services.Business.Lot
 		// 에러 발생 시 Form에 알림
 		public event EventHandler<string>? OnError;
 
-		public SensorChartService(LotController controller)
+		public SensorChartService(StatusController controller)
 		{
 			_controller = controller;
 		}
 
+
 		public void SetChartObject(List<FormsPlot> formsPlot) => _formsPlot = formsPlot;
 
 		// 차트 처리 시작
-		public async void StartChartGraph(string lotId)
+		public async void StartChartGraph(int lotKey)
 		{
 			// 기존 타이머 정지
 			StopTimer();
 
 			// 센서 타입 조회 후 차트 초기화
-			List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotId);
+			List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotKey);
 			InitAllCharts(sensorTypes);
 
 			// 타이머 시작
-			StartTimer(lotId);
+			StartTimer(lotKey);
 		}
 
+		
+
+
 		// 타이머 시작
-		private void StartTimer(string lotId, int interval = 1000)
+		private void StartTimer(int lotKey, int interval = 1000)
 		{
 			StopTimer(); // 기존 타이머 정리
 
 			_timer = new System.Windows.Forms.Timer { Interval = interval };
-			_timer.Tick += async (s, e) => await TimerTick(lotId);
+			_timer.Tick += async (s, e) => await TimerTick(lotKey);
 			_timer.Start();
 		}
 
@@ -74,7 +88,7 @@ namespace SkFdc1.Services.Business.Lot
 		}
 
 		// 센서 데이터 조회 및 타입별 분류
-		private async Task FetchSensorData(string lotId)
+		private async Task FetchSensorData(int lotKey)
 		{
 			TempValue = new Dictionary<string, List<double>>();
 			PressValue = new Dictionary<string, List<double>>();
@@ -82,12 +96,12 @@ namespace SkFdc1.Services.Business.Lot
 
 			try
 			{
-				List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotId);
+				List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotKey);
 
 				foreach (SensorTypeIdDto sensorTp in sensorTypes)
 				{
 					List<SensorDataDto> sensorData =
-						await _controller.GetSensorData(lotId, sensorTp.sensorId, 0);
+						await _controller.GetSensorData(lotKey, sensorTp.sensorKey);
 
 					if (sensorData.Count == 0) continue;
 
@@ -108,12 +122,12 @@ namespace SkFdc1.Services.Business.Lot
 		}
 
 		// 실제 차트 업데이트 처리
-		private async Task TimerTick(string lotId)
+		private async Task TimerTick(int lotKey)
 		{
 			_timer?.Stop();
 			try
 			{
-				await FetchSensorData(lotId);
+				await FetchSensorData(lotKey);
 
 				// chartupdate
 				UpdateChart(_formsPlot[0], TempValue, _tempStreamData);
@@ -196,13 +210,13 @@ namespace SkFdc1.Services.Business.Lot
 		}
 
 		// LOT 상세정보 조회
-		public async Task<string> GetDetailInfo(string lotId)
+		public async Task<string> GetDetailInfo(int lotKey)
 		{
 			string retString = "";
 
 			try
 			{
-				LotDetailDto lotDetail = await _controller.GetLotDetail(lotId);
+				LotDetailDto lotDetail = await _controller.GetLotDetail(lotKey);
 
 				retString = $"Lot ID: {lotDetail.lotId}\r\n" +
 					$"Status: {lotDetail.status}\r\n" +

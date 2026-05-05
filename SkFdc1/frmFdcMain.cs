@@ -2,32 +2,25 @@
 using SkFdc1.Forms.Status;
 using SkFdc1.Forms.Summary;
 using SkFdc1.Controllers;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace SkFdc1
 {
 	public partial class frmFdcMain : Form
 	{
-		private readonly LotController _lotController;
+		private readonly StatusController _lotController;
+		private readonly ManageController _manageController;
 
-		public frmFdcMain(LotController lotController)
+		public frmFdcMain(StatusController lotController, ManageController manageController)
 		{
 			InitializeComponent();
 
-			_lotController = lotController;
+			this._lotController = lotController;
+			this._manageController = manageController;
 		}
 
 		#region private
 
-		private void OpenForm(Form form)
+		private void OpenMdi(Form form)
 		{
 			// 기존 폼 닫기
 			foreach (Control ctrl in this.Controls)
@@ -42,30 +35,55 @@ namespace SkFdc1
 			form.Show();
 		}
 
+		/// <summary>
+		/// 팝업 처리 
+		/// </summary>
+		public void OpenPop(Form _this, Form frm, bool isDialog)
+		{
+			foreach (Form childForm in _this.OwnedForms)
+			{
+				if (frm.Name.Equals(childForm.Name))
+				{
+					childForm.BringToFront();
+					break;
+				}
+			}
+			frm.Owner = _this;
+			frm.StartPosition = FormStartPosition.CenterParent;
+			frm.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+			frm.MaximizeBox = false;
+			frm.MinimizeBox = false;
+
+			if (isDialog)
+				frm.ShowDialog();
+			else
+				frm.Show();
+		}
+
 		#endregion
 
 		#region event
 
 		private void mnuStatusLive_Click(object sender, EventArgs e)
-			=> OpenForm(new frmStatusLive(_lotController));
+			=> OpenMdi(new frmStatusLive(this, _lotController));
 
 		private void mnuSummaryTotal_Click(object sender, EventArgs e)
-			=> OpenForm(new frmSummaryTotal());
+			=> OpenMdi(new frmSummaryTotal());
 
 		private void mnuSummarySensor_Click(object sender, EventArgs e)
-			=> OpenForm(new frmSummarySensor());
+			=> OpenMdi(new frmSummarySensor());
 
 		private void mnuManageArea_Click(object sender, EventArgs e)
-			=> OpenForm(new frmManageArea());
+			=> OpenPop(this, new frmManageArea(this, _manageController), true);
 
 		private void mnuManageEqp_Click(object sender, EventArgs e)
-			=> OpenForm(new frmManageEqp());
+			=> OpenPop(this, new frmManageEqp(this, _manageController), true);
 
 		private void mnuManageLot_Click(object sender, EventArgs e)
-			=> OpenForm(new frmManageLot());
+			=> OpenPop(this, new frmManageLot(), true);
 
 		private void mnuManageSensor_Click(object sender, EventArgs e)
-			=> OpenForm(new frmManageSensor());
+			=> OpenPop(this, new frmManageSensor(), true);
 
 		#endregion
 	}

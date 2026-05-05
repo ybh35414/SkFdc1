@@ -8,11 +8,11 @@ namespace SkFdc1.Forms.Status
 {
 	public partial class frmStatusLive : Form
 	{
-		private readonly LotController _controller;
+		private readonly StatusController _controller;
 		private readonly SensorChartService _chartService;
+		private readonly frmFdcMain _mainForm;
 
-
-		public frmStatusLive(LotController lotController)
+		public frmStatusLive(frmFdcMain frmFdcMain, StatusController lotController)
 		{
 			InitializeComponent();
 
@@ -39,16 +39,21 @@ namespace SkFdc1.Forms.Status
 			if (e.RowIndex < 0) return;
 
 			DataGridViewRow row = grdList.Rows[e.RowIndex];
-			string? lotId = row.Cells["lotId"].Value.ToString();
-			if (string.IsNullOrEmpty(lotId)) return;
+			int lotKey = int.Parse(row.Cells["lotKey"].Value.ToString() ?? "-1");
+			if (lotKey == -1) return;
 
 			// LOT 상세정보 조회
-			string dtlStr = await _chartService.GetDetailInfo(lotId);
+			string dtlStr = await _chartService.GetDetailInfo(lotKey);
 			txtDtl.Text = dtlStr;
 
 			// 실시간 차트 시작 처리
-			_chartService.StartChartGraph(lotId);
-		} 
+			_chartService.StartChartGraph(lotKey);
+		}
+
+		private void btnStop_Click(object sender, EventArgs e)
+		{
+
+		}
 		#endregion
 
 
@@ -69,5 +74,7 @@ namespace SkFdc1.Forms.Status
 		}
 
 		#endregion
+
+
 	}
 }

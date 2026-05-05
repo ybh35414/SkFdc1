@@ -4,6 +4,7 @@ using SkFdc1.Repositories;
 using SkFdc1.Repositories.Implementations;
 using SkFdc1.Services;
 using SkFdc1.Services.Implementations;
+using SkFdc1.Services.Interfaces;
 
 namespace SkFdc1
 {
@@ -30,18 +31,21 @@ namespace SkFdc1
 
 				// 2. 레포지토리 생성     
 				var sensorRepo = new SensorRepository(apiClient);
-				var LotRepo = new LotRepository(apiClient);
+				var LotRepo = new StatusRepository(apiClient);
+				var manageRepo = new ManageRepository(apiClient);
 
 				// 3. 서비스 생성
-				var lotService = new LotService(LotRepo);
+				var lotService = new StatusService(LotRepo);
 				var sensorService = new SensorService(sensorRepo);
+				var manageService = new ManagaeService(manageRepo);
 
 				// 4. 컨트롤러 생성
-				var lotController = new LotController(lotService);
+				var lotController = new StatusController(lotService);
 				var sensorController = new SensorController(sensorService);
+				var manageController = new ManageController(manageService);
 
 				//Application.Run(new frmJang(sensorController, lotController));
-				Application.Run(new frmFdcMain(lotController));
+				Application.Run(new frmFdcMain(lotController, manageController));
 			}
             catch (Exception ex)
             {

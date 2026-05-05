@@ -15,10 +15,10 @@ namespace SkFdc1
 {
     public partial class frmJang : Form
     {
-        private readonly LotController _controller;
+        private readonly StatusController _controller;
         private readonly SensorController _sensorController;
 
-        public frmJang(SensorController sensorController, LotController lotController)
+        public frmJang(SensorController sensorController, StatusController lotController)
         {
             InitializeComponent();
             _controller = lotController;

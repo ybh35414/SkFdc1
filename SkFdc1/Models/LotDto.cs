@@ -27,6 +27,7 @@ namespace SkFdc1.Models
 
 		public string areaName { get; set; } = string.Empty;
 
+
 		// empty변환
 		public static readonly LotDetailDto Empty = new LotDetailDto
 		{
@@ -46,6 +47,7 @@ namespace SkFdc1.Models
 	/// </summary>
 	public class LotViewDto
 	{
+		public int lotKey { get; set; }
 		public string lotId { get; set; } = string.Empty;
 		public string status { get; set; } = string.Empty;
 		public string equipmentName { get; set; } = string.Empty;
@@ -65,14 +67,9 @@ namespace SkFdc1.Models
 	/// </summary>
 	public class SensorDataDto
 	{
-		public int dataId { get; set; }
-		public string eqpId { get; set; } = string.Empty;
+		public int dataKey { get; set; }
+		public int eqpKey { get; set; }
 		public double sensorValue { get; set; }
-
-		public static readonly SensorDataDto Empty = new SensorDataDto
-		{
-			eqpId = "",
-		};
 	}
 
 	/// <summary>
@@ -82,6 +79,7 @@ namespace SkFdc1.Models
 	{
 		public string areaName { get; set; } = string.Empty;
 		public string eqpName { get; set; } = string.Empty;
+		public int sensorKey { get; set; }
 		public string sensorId { get; set; } = string.Empty;
 		public string sensorType { get; set; } = string.Empty;
 

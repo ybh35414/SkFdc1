@@ -125,6 +125,7 @@
 			btnStop.TabIndex = 1;
 			btnStop.Text = "Stop";
 			btnStop.UseVisualStyleBackColor = true;
+			btnStop.Click += btnStop_Click;
 			// 
 			// tableLayoutPanel2
 			// 

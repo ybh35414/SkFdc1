@@ -20,7 +20,7 @@ namespace SkFdc1.Common
 			_client = new HttpClient
 			{
 				BaseAddress = new Uri("http://localhost:8080/api/fdc/"),
-				Timeout = TimeSpan.FromSeconds(30)
+				Timeout = TimeSpan.FromSeconds(300)
 			};
 
 		}
@@ -72,12 +72,19 @@ namespace SkFdc1.Common
 			}
 		}
 
+		// Post result 클래스
+		public class ApiPostResult
+		{
+			public bool Success { get; set; } = false;
+			public string Message { get; set; } = "";
+		}
 
 
-        // ============================================================
-        // 0) 센서 기존 유무 확인 (CheckDuplicateAsync)
-        // ============================================================
-        public async Task<bool> CheckDuplicateAsync(string sensorID)
+
+		// ============================================================
+		// 0) 센서 기존 유무 확인 (CheckDuplicateAsync)
+		// ============================================================
+		public async Task<bool> CheckDuplicateAsync(string sensorID)
         {
 			var json = JsonConvert.SerializeObject(new { sensorID });
 			var content = new StringContent(json, Encoding.UTF8, "application/json");

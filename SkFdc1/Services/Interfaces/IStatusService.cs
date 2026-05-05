@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace SkFdc1.Services.Interfaces
 {
-	public interface ILotService
+	public interface IStatusService
 	{
-		// 센서 리스트
+		// 센서 리스트 // Task<List<LotViewDto>> GetLotViewList();
 		Task<List<LotViewDto>> GetProcessLotViewList();
 		// 센서 상세정보
-		Task<LotDetailDto> GetProcessLotDetail(string lotId);
+		Task<LotDetailDto> GetProcessLotDetail(int lotKey);
 		// 센서 Value 처리
-		Task<List<SensorDataDto>> GetProcessSensorData(string lotId, string sensorId, int lastDataId);
+		Task<List<SensorDataDto>> GetProcessSensorData(int lotKey, int sensorKey);
 		// 센서 타입 정보
-		Task<List<SensorTypeIdDto>> GetProcessSensorTypeIds(string lotId);
+		Task<List<SensorTypeIdDto>> GetProcessSensorTypeIds(int lotKey);
 	}
 }
