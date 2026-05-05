@@ -16,6 +16,9 @@ namespace SkFdc1
         [STAThread]
         static void Main()
         {
+			// v1.1
+
+
 			// Log4Net 초기화
 			LogHelper.Init();
 			LogHelper.Info("=== SK FDC 시작 ===");
