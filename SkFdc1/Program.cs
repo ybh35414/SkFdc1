@@ -17,6 +17,7 @@ namespace SkFdc1
         static void Main()
         {
 			// v1.1
+			// v1.2 - API 통신 로직 개선, 트랜잭션 처리 추가
 
 			// Log4Net 초기화
 			LogHelper.Init();
