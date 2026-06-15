@@ -24,6 +24,11 @@ namespace SkFdc1.Forms.Status
 
 			// 서비스에 차트 세팅
 			_chartService.SetChartObject(new List<FormsPlot>() { formsPlot1, formsPlot2, formsPlot3 });
+
+			// IProgress 설정: 서비스가 Report를 호출하면 이 람다식이 UI 스레드에서 자동으로 실행됩니다.
+			// 여기서 UpdateChartAll을 호출함으로써 그래프가 그려지게 됩니다.
+			Progress<ChartUpdatePackage> chartProgress = new Progress<ChartUpdatePackage>(package => _chartService.UpdateChartAll(package));
+			_chartService.SetProgress(chartProgress);
 		}
 
 		#region event

@@ -88,5 +88,35 @@ namespace SkFdc1.Services.Implementations
 
 		#endregion
 
+
+		#region LotStatus	
+		public async Task<List<LotStatusKeyListDto>> GetStatusKeyList(int areaKey)
+		{
+			List<LotStatusKeyListDto> data = await _repository.GetStatusKeyList(areaKey);
+			return data;
+		}
+
+		public async Task<(bool success, string message)> SetProcessSaveLotStatus(List<LotStatusSaveDto> list)
+		{
+			// reqqust dto 생성
+			LotStatusSaveRequest dto = new LotStatusSaveRequest
+			{
+				List = list
+			};
+
+			try
+			{
+				string json = await _repository.SaveLotStatus(dto);
+				ApiPostResult result = JsonConvert.DeserializeObject<ApiPostResult>(json) ?? new ApiPostResult();
+				return (result.Success, result.Message);
+			}
+			catch (Exception ex)
+			{
+				LogHelper.Error("LotStatus 저장 실패", ex);
+				return (false, ex.Message);
+			}
+		}
+		#endregion
+
 	}
 }

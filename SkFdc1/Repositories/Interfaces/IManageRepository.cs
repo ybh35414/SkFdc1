@@ -27,5 +27,11 @@ namespace SkFdc1.Repositories.Interfaces
 		Task<String> SaveEqp(EqpSaveDto dto);
 		#endregion
 
+		#region LotStatus
+		Task<List<LotStatusKeyListDto>> GetStatusKeyList(int areaKey);
+		// LotStatus 저장
+		Task<string> SaveLotStatus(LotStatusSaveRequest dto);		
+		#endregion
 	}
+
 }

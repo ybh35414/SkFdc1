@@ -79,8 +79,8 @@ public static class ComboBoxHelper
 
 	public static int GetValueI(ComboBox combo)
 	{
-		if (combo.SelectedValue?.GetType().ToString() == "ComboItem")
-			return Convert.ToInt32(((ComboItem)combo.SelectedValue).Value?.ToString());
+		if (combo.SelectedValue?.GetType().ToString() == "ComboItemI")
+			return Convert.ToInt32(((ComboItemI)combo.SelectedValue).Value?.ToString());
 		else
 			return Convert.ToInt32(combo.SelectedValue?.ToString());
 	}

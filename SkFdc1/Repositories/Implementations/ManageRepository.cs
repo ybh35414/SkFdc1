@@ -52,10 +52,21 @@ namespace SkFdc1.Repositories.Implementations
 		public async Task<string> SaveEqp(EqpSaveDto dto)
 		{
 			return await _apiClient.PostAsync("eqp/save", dto);
-		} 
+		}
 		#endregion
 
+		#region LotStatus
+		public async Task<List<LotStatusKeyListDto>> GetStatusKeyList(int areaKey)
+		{
+			return await _apiClient.GetAsync<List<LotStatusKeyListDto>>($"lotStatus/list/{areaKey}");
+		}
 
+		public async Task<string> SaveLotStatus(LotStatusSaveRequest dto)
+		{
+			return await _apiClient.PostAsync("lotStatus/saveAll", dto);
+		}
+
+		#endregion
 
 	}
 

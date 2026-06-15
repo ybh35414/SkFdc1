@@ -2,11 +2,13 @@
 using ScottPlot.WinForms;
 using SkFdc1.Controllers;
 using SkFdc1.Models;
+using SkFdc1.Common; // LogHelper를 위해 추가
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms; // MethodInvoker를 위해 추가
 
 namespace SkFdc1.Services.Business.Lot
 {
@@ -17,16 +19,7 @@ namespace SkFdc1.Services.Business.Lot
 	{
 		private readonly StatusController _controller;
 		private System.Windows.Forms.Timer? _timer;
-
-		public int MyProperty { get; set; }
-
-		//private int _myVar;
-		//public int MyProperty
-		//{
-		//	get { return _myVar; }
-		//	set { _myVar = value; }
-		//}
-
+		private IProgress<ChartUpdatePackage>? _progress;
 
 		// 타입별 센서 데이터 - Service가 보관
 		public Dictionary<string, List<double>> TempValue { get; private set; } = new();
@@ -49,21 +42,32 @@ namespace SkFdc1.Services.Business.Lot
 			_controller = controller;
 		}
 
+		// UI에서 UI 스레드 기반의 Progress 객체를 주입받음
+		public void SetProgress(IProgress<ChartUpdatePackage> progress) => _progress = progress;
 
 		public void SetChartObject(List<FormsPlot> formsPlot) => _formsPlot = formsPlot;
 
 		// 차트 처리 시작
 		public async void StartChartGraph(int lotKey)
 		{
-			// 기존 타이머 정지
-			StopTimer();
+			try
+			{
+				// 기존 타이머 정지
+				StopTimer();
 
-			// 센서 타입 조회 후 차트 초기화
-			List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotKey);
-			InitAllCharts(sensorTypes);
+				// 센서 타입 조회 후 차트 초기화
+				List<SensorTypeIdDto> sensorTypes = await _controller.GetSensorTypeIds(lotKey);
 
-			// 타이머 시작
-			StartTimer(lotKey);
+				List<string> sensorIds = sensorTypes.Select(x => x.sensorId).ToList();
+				InitAllCharts(sensorTypes);
+
+				// 타이머 시작
+				StartTimer(lotKey);
+			}
+			catch (Exception ex)
+			{
+				OnError?.Invoke(this, $"차트 시작 오류 : lotKey: {lotKey} / " + ex.Message);
+			}
 		}
 
 		
@@ -117,7 +121,7 @@ namespace SkFdc1.Services.Business.Lot
 			}
 			catch (Exception ex)
 			{
-				OnError?.Invoke(this, "차트 데이터 얻기 오류 : lotID: lotId / " + ex.Message);
+				OnError?.Invoke(this, $"차트 데이터 얻기 오류 : lotKey: {lotKey} / " + ex.Message);
 			}
 		}
 
@@ -127,21 +131,36 @@ namespace SkFdc1.Services.Business.Lot
 			_timer?.Stop();
 			try
 			{
-				await FetchSensorData(lotKey);
+				// 비동기로 데이터를 가져옴
+				await FetchSensorData(lotKey).ConfigureAwait(false);
+				// 가져온 데이터를 패키징하여 UI 스레드로 리포트
+				var package = new ChartUpdatePackage
+				{
+					Temp = this.TempValue,
+					Press = this.PressValue,
+					Flow = this.FlowValue
+				};
 
-				// chartupdate
-				UpdateChart(_formsPlot[0], TempValue, _tempStreamData);
-				UpdateChart(_formsPlot[1], PressValue, _pressStreamData);
-				UpdateChart(_formsPlot[2], FlowValue, _flowStreamData);
+				_progress?.Report(package);
 			}
 			catch (Exception ex)
 			{
-				OnError?.Invoke(this, "차트 업데이트 오류 : lotID: lotId / " + ex.Message);
+				OnError?.Invoke(this, $"차트 업데이트 오류 : lotKey: {lotKey} / " + ex.Message);
 			}
 			finally
 			{
 				_timer?.Start();
 			}
+		}
+
+		/// <summary>
+		/// 모든 차트를 일괄 업데이트합니다.
+		/// </summary>
+		public void UpdateChartAll(ChartUpdatePackage data)
+		{
+			UpdateChart(_formsPlot[0], data.Temp, _tempStreamData);
+			UpdateChart(_formsPlot[1], data.Press, _pressStreamData);
+			UpdateChart(_formsPlot[2], data.Flow, _flowStreamData);
 		}
 
 		// 전체 차트 초기화 및 스트림데이터 세팅
@@ -195,15 +214,44 @@ namespace SkFdc1.Services.Business.Lot
 		{
 			if (chart.InvokeRequired)
 			{
-				chart.Invoke(() => UpdateChart(chart, datas, streamData));
+				// UI 스레드 밖에서 호출된 경우: 작업을 큐에 넣고 즉시 리턴합니다 (Non-blocking)
+				try
+				{
+					chart.BeginInvoke(new Action(() =>
+					{
+						// 실제 UI 스레드에서 실행될 시점에 컨트롤 상태 확인
+						if (!chart.IsDisposed && chart.IsHandleCreated)
+							PerformChartUpdate(chart, datas, streamData);
+					}));
+				}
+				catch (Exception ex)
+				{
+					LogHelper.Error("BeginInvoke 호출 중 오류 발생", ex);
+				}
 				return;
 			}
+			// IProgress를 통해 호출되므로 이미 UI 스레드임이 보장되지만, 
+			// 컨트롤의 생존 여부는 여전히 확인해야 합니다.
+			if (chart == null || chart.IsDisposed || !chart.IsHandleCreated) return;
 
+			// 이미 UI 스레드인 경우: 즉시 실행
+			PerformChartUpdate(chart, datas, streamData);
+		}
+
+		/// <summary>
+		/// 실제 차트 업데이트 로직을 수행하는 헬퍼 메서드
+		/// </summary>
+		private void PerformChartUpdate(FormsPlot chart,
+			Dictionary<string, List<double>> datas,
+			List<(string, DataStreamer)> streamData)
+		{
 			foreach (var (sensorId, streamer) in streamData)
 			{
-				if (!datas.ContainsKey(sensorId)) continue;
-				foreach (double value in datas[sensorId])
-					streamer.Add(value);
+				if (datas.TryGetValue(sensorId, out List<double> values))
+				{
+					foreach (double value in values)
+						streamer.Add(value);
+				}
 			}
 
 			chart.Refresh();
@@ -232,7 +280,7 @@ namespace SkFdc1.Services.Business.Lot
 			}
 			catch (Exception ex)
 			{
-				OnError?.Invoke(this, "상세정보 처리 오류 : lotID: lotId / " + ex.Message);
+				OnError?.Invoke(this, $"상세정보 처리 오류 : lotKey: {lotKey} / " + ex.Message);
 				retString = "";
 			}
 

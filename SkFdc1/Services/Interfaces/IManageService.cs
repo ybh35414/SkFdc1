@@ -27,5 +27,9 @@ namespace SkFdc1.Services.Interfaces
 
 		#endregion
 
+		#region LotStatus
+		Task<List<LotStatusKeyListDto>> GetStatusKeyList(int areaKey);
+		Task<(bool success, string message)> SetProcessSaveLotStatus(List<LotStatusSaveDto> list);
+		#endregion
 	}
 }

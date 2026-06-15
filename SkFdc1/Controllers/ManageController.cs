@@ -51,5 +51,14 @@ namespace SkFdc1.Controllers
 			=> await _service.SetProcessSaveArea(dto);
 		#endregion
 
+
+		public async Task<List<LotStatusKeyListDto>> GetStatusKeyList(int areaKey)
+		{
+			List<LotStatusKeyListDto> data = await _service.GetStatusKeyList(areaKey);
+			return data;
+		}
+
+		public async Task<(bool success, string message)> SaveLotStatus(List<LotStatusSaveDto> list)
+			=> await _service.SetProcessSaveLotStatus(list);
 	}
 }

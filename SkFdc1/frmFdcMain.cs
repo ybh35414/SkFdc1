@@ -80,7 +80,7 @@ namespace SkFdc1
 			=> OpenPop(this, new frmManageEqp(this, _manageController), true);
 
 		private void mnuManageLot_Click(object sender, EventArgs e)
-			=> OpenPop(this, new frmManageLot(), true);
+			=> OpenPop(this, new frmManageLot(this, _manageController), true);
 
 		private void mnuManageSensor_Click(object sender, EventArgs e)
 			=> OpenPop(this, new frmManageSensor(), true);
